@@ -34,6 +34,16 @@ GPIO.setup(output_enable, GPIO.OUT)
 GPIO.output(write_enable, GPIO.HIGH)
 GPIO.output(output_enable, GPIO.HIGH)
 
+
+def hex_to_bin(hex_address): 
+    return bin(int(hex_address, 16))[2:]
+
+def converter(address):
+    if (address.startswith("0x") or address.startswith("0X")):
+        return hex_to_bin(address[2:])
+    else :
+        return address 
+
 try :
     mode = sys.argv[1] 
 
@@ -43,24 +53,23 @@ except :
 if mode == 'w' :
 
     try :
-        address = sys.argv[2] 
-
+        address = converter(sys.argv[2])
     except :
-        address = (input("address : "))
+        address = converter(input("address : "))
 
     try :
-        data = sys.argv[3] 
+        data = converter(sys.argv[3]) 
 
     except :
-        data = (input("data : "))
+        data = converter(input("data : "))
 
 elif mode == 'r' :
 
     try :
-        address = sys.argv[2] 
+        address = converter(sys.argv[2]) 
 
     except :
-        address = (input("address : "))
+        address = converter(input("address : "))
 
 
 

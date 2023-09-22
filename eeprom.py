@@ -79,6 +79,14 @@ def setAddress(inp, clk_pin, r_clk_pin, clk_freq, data_pin) :
     GPIO.output(data_pin, GPIO.LOW)
     i = 0
     time.sleep(clk_freq)
+    
+    # Clear shift register with 16 zero bits
+    for z in range (0,17):
+        GPIO.output(clk_pin, GPIO.LOW)
+        GPIO.output(data_pin, 0)
+        GPIO.output(clk_pin, GPIO.HIGH) 
+        GPIO.output(clk_pin, GPIO.LOW)
+
     for bit in inp :
         GPIO.output(clk_pin, GPIO.LOW)
         GPIO.output(data_pin, int(bit))

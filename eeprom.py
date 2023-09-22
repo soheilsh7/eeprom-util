@@ -13,6 +13,7 @@ import RPi.GPIO as GPIO
 import time
 import threading
 import sys
+import argparse
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False) 
@@ -25,6 +26,7 @@ output_enable = 12
 io_pin_array = [19, 13, 6, 5, 22, 27, 17, 4]
 
 
+#Initialize GPIOs
 GPIO.cleanup()
 GPIO.setup(clk, GPIO.OUT)
 GPIO.setup(r_clk, GPIO.OUT)
@@ -33,6 +35,17 @@ GPIO.setup(write_enable, GPIO.OUT)
 GPIO.setup(output_enable, GPIO.OUT)
 GPIO.output(write_enable, GPIO.HIGH)
 GPIO.output(output_enable, GPIO.HIGH)
+
+
+#Parse Inputs
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', action="store", dest='mode')
+parser.add_argument('-m', action="store", dest='mode')
+parser.add_argument('--address', action="store", dest='inp_address')
+parser.add_argument('-a', action="store", dest='inp_address')
+parser.add_argument('--data', action="store", dest='inp_data')
+parser.add_argument('-d', action="store", dest='inp_data')
+args = parser.parse_args()
 
 
 def hex_to_bin(hex_address): 
@@ -44,32 +57,50 @@ def converter(address):
     else :
         return address 
 
-try :
-    mode = sys.argv[1] 
+if args.mode == None :
+    args.mode = (input("mode : "))
 
-except :
-    mode = (input("mode : "))
+if args.mode == 'w' :
+    if args.inp_address != None :
+        address = converter(args.inp_address)
+        used = True
+    else :
+        used = False
+        try :
+            address = converter(sys.argv[3])
+        except :
+            address = converter(input("address : "))
+    
+    if args.inp_data != None :
+        data = converter(args.inp_data)
+    else:
+        if used :
+            try :
+                data = converter(sys.argv[5])
+            except :
+                data = converter(input("data : "))
+        else :
+            try :
+                data = converter(sys.argv[4])
+            except :
+                data = converter(input("data : "))
 
-if mode == 'w' :
 
-    try :
-        address = converter(sys.argv[2])
-    except :
-        address = converter(input("address : "))
+elif args.mode == 'r' :
+    if args.inp_address != None :
+        address = converter(args.inp_address) 
+    else:
+        try :
+            address = converter(sys.argv[3]) 
+        except :
+            address = converter(input("address : "))
 
-    try :
-        data = converter(sys.argv[3]) 
+elif args.mode == 'a' :
+    pass
 
-    except :
-        data = converter(input("data : "))
+else :
+    raise Exception("Sorry, invalid argument passed")
 
-elif mode == 'r' :
-
-    try :
-        address = converter(sys.argv[2]) 
-
-    except :
-        address = converter(input("address : "))
 
 
 
@@ -163,13 +194,13 @@ def read_all():
 
 
 
-if mode == 'w' :
+if args.mode == 'w' :
     write(address, clk, r_clk, clk_freq, address_set_pin, write_enable, output_enable, io_pin_array)
 
-elif mode == 'r' :
+elif args.mode == 'r' :
     read(address, clk, r_clk, clk_freq, address_set_pin, write_enable, output_enable, io_pin_array)
     #read_byte(address, clk, r_clk, clk_freq, address_set_pin, write_enable, output_enable, io_pin_array)
-elif mode == 'a' :
+elif args.mode == 'a' :
     read_all()
 
 
